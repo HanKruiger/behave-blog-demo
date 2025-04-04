@@ -1,6 +1,7 @@
+#![no_std]
+
 //! This example illustrates how to create a button that changes color and text based on its
 //! interaction state.
-
 use bevy::{color::palettes::basic::*, prelude::*};
 
 use wasm_bindgen::prelude::*;
@@ -63,39 +64,42 @@ fn button_system(
 fn setup(mut commands: Commands) {
   // ui camera
   commands.spawn(Camera2d);
-  commands
-    .spawn(Node {
+  commands.spawn(button());
+}
+
+fn button() -> impl Bundle + use<> {
+  (
+    Node {
       width: Val::Percent(100.0),
       height: Val::Percent(100.0),
       align_items: AlignItems::Center,
       justify_content: JustifyContent::Center,
       ..default()
-    })
-    .with_children(|parent| {
-      parent
-        .spawn((
-          Button,
-          Node {
-            width: Val::Px(150.0),
-            height: Val::Px(65.0),
-            border: UiRect::all(Val::Px(5.0)),
-            // horizontally center child text
-            justify_content: JustifyContent::Center,
-            // vertically center child text
-            align_items: AlignItems::Center,
-            ..default()
-          },
-          BorderColor(Color::BLACK),
-          BorderRadius::MAX,
-          BackgroundColor(NORMAL_BUTTON),
-        ))
-        .with_child((
-          Text::new("Button"),
-          TextFont {
-            font_size: 33.0,
-            ..default()
-          },
-          TextColor(Color::srgb(0.9, 0.9, 0.9)),
-        ));
-    });
+    },
+    children![(
+      Button,
+      Node {
+        width: Val::Px(150.0),
+        height: Val::Px(65.0),
+        border: UiRect::all(Val::Px(5.0)),
+        // horizontally center child text
+        justify_content: JustifyContent::Center,
+        // vertically center child text
+        align_items: AlignItems::Center,
+        ..default()
+      },
+      BorderColor(Color::BLACK),
+      BorderRadius::MAX,
+      BackgroundColor(NORMAL_BUTTON),
+      children![(
+        Text::new("Button"),
+        TextFont {
+          font_size: 33.0,
+          ..default()
+        },
+        TextColor(Color::srgb(0.9, 0.9, 0.9)),
+        TextShadow::default(),
+      )]
+    )],
+  )
 }
