@@ -1,14 +1,16 @@
 #![no_std]
 
-//! This example illustrates how to create a button that changes color and text based on its
-//! interaction state.
+mod glue;
+
 use bevy::{color::palettes::basic::*, prelude::*};
 
+use glue::{GluePlugin, WebEvent};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen(start)]
 pub fn main() {
   App::new()
+    .insert_resource(ClearColor(Color::srgba(0.0, 0.0, 0.0, 0.0)))
     .add_plugins(DefaultPlugins.set(WindowPlugin {
       primary_window: Some(Window {
         // provide the ID selector string here
@@ -18,8 +20,10 @@ pub fn main() {
       }),
       ..default()
     }))
+    .add_plugins(GluePlugin)
     .add_systems(Startup, setup)
     .add_systems(Update, button_system)
+    .add_observer(on_web_event)
     .run();
 }
 
@@ -64,7 +68,14 @@ fn button_system(
 fn setup(mut commands: Commands) {
   // ui camera
   commands.spawn(Camera2d);
-  commands.spawn(button());
+}
+
+fn on_web_event(trigger: Trigger<WebEvent>, mut commands: Commands) {
+  match trigger.event() {
+    WebEvent::SpawnThing => {
+      commands.spawn(button());
+    }
+  }
 }
 
 fn button() -> impl Bundle + use<> {
