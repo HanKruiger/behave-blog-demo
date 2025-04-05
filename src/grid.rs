@@ -22,8 +22,6 @@ fn spawn_grid(
   mut materials: ResMut<Assets<ColorMaterial>>,
   mut commands: Commands,
 ) {
-  info!("spawning grid with size {:?}", r_grid_size);
-
   // despawn old grid
   for e in q_background_cells.iter() {
     commands.entity(e).despawn();
@@ -38,7 +36,7 @@ fn spawn_grid(
         GridCell((x, y)),
         Ground,
         Mesh2d(meshes.add(Rectangle::new(0.8, 0.8))),
-        MeshMaterial2d(materials.add(Color::from(tw::GREEN_600))),
+        MeshMaterial2d(materials.add(Color::from(tw::GRAY_600))),
       ));
     }
   }
@@ -56,6 +54,7 @@ fn translate_moved_cells(
       Vec2::from(layout(cell.0, r_cell_size.0, oddness)),
       transform.translation.z,
     ));
+    transform.scale = Vec3::ONE * r_cell_size.0;
   }
 }
 
@@ -84,9 +83,23 @@ fn layout(coordinates: (isize, isize), cell_size: f32, oddness: (bool, bool)) ->
   )
 }
 
-#[derive(Component)]
+#[derive(Component, Default)]
 #[require(Transform)]
 pub struct GridCell(pub (isize, isize));
+
+impl GridCell {
+  pub fn new(x: isize, y: isize) -> Self {
+    Self((x, y))
+  }
+
+  pub fn x(&self) -> isize {
+    self.0.0
+  }
+
+  pub fn y(&self) -> isize {
+    self.0.1
+  }
+}
 
 #[derive(Component)]
 pub struct Ground;

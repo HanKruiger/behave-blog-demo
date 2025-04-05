@@ -1,5 +1,7 @@
 use bevy::{prelude::*, window::WindowResized};
 
+use crate::grid::GridCell;
+
 pub struct ResizingPlugin;
 
 impl Plugin for ResizingPlugin {
@@ -54,6 +56,13 @@ impl GridSize {
 
   pub fn oddness(&self) -> (bool, bool) {
     (self.width % 2 != 0, self.height % 2 != 0)
+  }
+
+  pub fn contains_cell(&self, grid_cell: &GridCell) -> bool {
+    grid_cell.x() >= -((self.width / 2) as isize)
+      && grid_cell.x() < (self.width / 2) as isize
+      && grid_cell.y() >= -((self.height / 2) as isize)
+      && grid_cell.y() < (self.height / 2) as isize
   }
 }
 

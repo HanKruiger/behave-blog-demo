@@ -32,7 +32,7 @@ fn wire_up_buttons(sender: Res<GlueSender<WebEvent>>) {
   let sender_1 = sender.0.clone();
 
   EventListener::new(&dom_button, "click", move |_event| {
-    sender_1.send(WebEvent::SpawnThing).unwrap();
+    sender_1.send(WebEvent::SpawnAgent).unwrap();
   })
   .forget();
 }
@@ -46,7 +46,7 @@ fn forward_web_events(receiver: ResMut<GlueReceiver<WebEvent>>, mut commands: Co
 
 #[derive(Debug, Event)]
 pub enum WebEvent {
-  SpawnThing,
+  SpawnAgent,
 }
 
 #[derive(Resource)]
