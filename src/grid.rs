@@ -1,7 +1,7 @@
 use bevy::color::palettes::tailwind as tw;
 use bevy::prelude::*;
 
-use crate::resizing::{CellSize, CellSizeChanged, GridSize, GridSizeChanged};
+use crate::resizing::{CellSize, CellSizeChanged, GridBounds, GridSizeChanged};
 
 pub struct GridPlugin;
 
@@ -16,7 +16,7 @@ impl Plugin for GridPlugin {
 
 fn spawn_grid(
   _trigger: Trigger<GridSizeChanged>,
-  r_grid_size: Res<GridSize>,
+  r_grid_bounds: Res<GridBounds>,
   q_background_cells: Query<Entity, With<Ground>>,
   mut meshes: ResMut<Assets<Mesh>>,
   mut materials: ResMut<Assets<ColorMaterial>>,
@@ -28,12 +28,10 @@ fn spawn_grid(
   }
 
   // spawn new grid
-  for i in 0..r_grid_size.width {
-    let x = i as isize - (r_grid_size.width / 2) as isize;
-    for j in 0..r_grid_size.height {
-      let y = j as isize - (r_grid_size.height / 2) as isize;
+  for x in r_grid_bounds.left_inclusive()..r_grid_bounds.right_exclusive() {
+    for y in r_grid_bounds.top_inclusive()..r_grid_bounds.bottom_exclusive() {
       commands.spawn((
-        GridCell((x, y)),
+        GridCell::new(x, y),
         Ground,
         Mesh2d(meshes.add(Rectangle::new(0.8, 0.8))),
         MeshMaterial2d(materials.add(Color::from(tw::GRAY_600))),
@@ -45,13 +43,13 @@ fn spawn_grid(
 
 fn translate_moved_cells(
   mut q_moved: Query<(&GridCell, &mut Transform), Changed<GridCell>>,
-  r_grid_size: Res<GridSize>,
+  r_grid_bounds: Res<GridBounds>,
   r_cell_size: Res<CellSize>,
 ) {
-  let oddness = r_grid_size.oddness();
+  let oddness = r_grid_bounds.oddness();
   for (cell, mut transform) in q_moved.iter_mut() {
     transform.translation = Vec3::from((
-      Vec2::from(layout(cell.0, r_cell_size.0, oddness)),
+      Vec2::from(layout(cell.into(), r_cell_size.0, oddness)),
       transform.translation.z,
     ));
     transform.scale = Vec3::ONE * r_cell_size.0;
@@ -61,13 +59,13 @@ fn translate_moved_cells(
 fn resize_and_translate_on_cell_size_changed(
   _trigger: Trigger<CellSizeChanged>,
   mut q_cells: Query<(&GridCell, &mut Transform)>,
-  r_grid_size: Res<GridSize>,
+  r_grid_bounds: Res<GridBounds>,
   r_cell_size: Res<CellSize>,
 ) {
-  let oddness = r_grid_size.oddness();
+  let oddness = r_grid_bounds.oddness();
   for (cell, mut transform) in q_cells.iter_mut() {
     transform.translation = Vec3::from((
-      Vec2::from(layout(cell.0, r_cell_size.0, oddness)),
+      Vec2::from(layout(cell.into(), r_cell_size.0, oddness)),
       transform.translation.z,
     ));
     transform.scale = Vec3::ONE * r_cell_size.0;
@@ -85,19 +83,20 @@ fn layout(coordinates: (isize, isize), cell_size: f32, oddness: (bool, bool)) ->
 
 #[derive(Component, Default)]
 #[require(Transform)]
-pub struct GridCell(pub (isize, isize));
+pub struct GridCell {
+  pub x: isize,
+  pub y: isize,
+}
 
 impl GridCell {
   pub fn new(x: isize, y: isize) -> Self {
-    Self((x, y))
+    Self { x, y }
   }
+}
 
-  pub fn x(&self) -> isize {
-    self.0.0
-  }
-
-  pub fn y(&self) -> isize {
-    self.0.1
+impl From<&GridCell> for (isize, isize) {
+  fn from(value: &GridCell) -> Self {
+    (value.x, value.y)
   }
 }
 

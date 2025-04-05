@@ -41,3 +41,4 @@ web-sys = { version = "0.3", features = [
 ] }
 gloo = { version = "0.11", default-features = false, features = ["events"] }
 crossbeam-channel = { version = "0.5", default-features = false }
+bevy_behave = "0.2.2"

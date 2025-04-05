@@ -21,14 +21,15 @@ impl Plugin for GluePlugin {
 /// attach click listeners to button elements, and sends them to the channel
 /// (it is not possible to directly send to Bevy from the closure)
 fn wire_up_buttons(sender: Res<GlueSender<WebEvent>>) {
-  let mut mapping = HashMap::new();
-  mapping.insert("spawn", WebEvent::SpawnAgent);
-  mapping.insert("walk-lr-naive", WebEvent::SetBehaviourWalkLeftRightNaive);
+  let mut button_click_mapping = HashMap::new();
+  button_click_mapping.insert("spawn", WebEvent::SpawnAgent);
+  button_click_mapping.insert("walk-lr-naive", WebEvent::SetBehaviourWalkLeftRightNaive);
+  button_click_mapping.insert("walk-lr", WebEvent::SetBehaviourWalkLeftRight);
 
   let window = web_sys::window().expect("could not get window from web_sys");
   let document = window.document().expect("could not get document");
 
-  for (id, event) in mapping.iter() {
+  for (id, event) in button_click_mapping.iter() {
     let dom_button = document
       .query_selector(&format!("button#{}", id))
       .expect("query selector failed")
@@ -54,6 +55,7 @@ fn forward_web_events(receiver: ResMut<GlueReceiver<WebEvent>>, mut commands: Co
 pub enum WebEvent {
   SpawnAgent,
   SetBehaviourWalkLeftRightNaive,
+  SetBehaviourWalkLeftRight,
 }
 
 #[derive(Resource)]

@@ -1,12 +1,11 @@
 mod agent;
-mod behaviour;
+mod behaviours;
 mod glue;
 mod grid;
 mod resizing;
 mod schedule;
 
 use agent::SpawnAgent;
-use behaviour::SetBehaviourWalkLeftRightNaive;
 use bevy::prelude::*;
 
 use wasm_bindgen::prelude::*;
@@ -30,7 +29,7 @@ pub fn main() {
     .add_plugins(resizing::ResizingPlugin)
     .add_plugins(grid::GridPlugin)
     .add_plugins(agent::AgentPlugin)
-    .add_plugins(behaviour::BehaviourPlugin)
+    .add_plugins(behaviours::BehavioursPlugin)
     // main systems & observers
     .add_systems(Startup, setup)
     .add_observer(on_web_event)
@@ -47,7 +46,14 @@ fn on_web_event(trigger: Trigger<glue::WebEvent>, mut commands: Commands) {
       commands.trigger(SpawnAgent);
     }
     glue::WebEvent::SetBehaviourWalkLeftRightNaive => {
-      commands.trigger(SetBehaviourWalkLeftRightNaive);
+      commands.trigger(behaviours::ClearNaiveBehaviours);
+      commands.trigger(behaviours::ClearBehaviours);
+      commands.trigger(behaviours::SetBehaviourWalkLeftRightNaive);
+    }
+    glue::WebEvent::SetBehaviourWalkLeftRight => {
+      commands.trigger(behaviours::ClearNaiveBehaviours);
+      commands.trigger(behaviours::ClearBehaviours);
+      commands.trigger(behaviours::SetBehaviourWalkLeftRight);
     }
   }
 }
