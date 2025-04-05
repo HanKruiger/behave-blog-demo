@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 
 use gloo::events::EventListener;
-use web_sys;
 
 pub struct GluePlugin;
 
@@ -33,7 +32,6 @@ fn wire_up_buttons(sender: Res<GlueSender<WebEvent>>) {
   let sender_1 = sender.0.clone();
 
   EventListener::new(&dom_button, "click", move |_event| {
-    web_sys::console::log_1(&"hello from bevy".into());
     sender_1.send(WebEvent::SpawnThing).unwrap();
   })
   .forget();
@@ -42,7 +40,6 @@ fn wire_up_buttons(sender: Res<GlueSender<WebEvent>>) {
 /// consumes WebEvents from the channel and forwards them to the Bevy trigger system
 fn forward_web_events(receiver: ResMut<GlueReceiver<WebEvent>>, mut commands: Commands) {
   while let Ok(event) = receiver.0.try_recv() {
-    web_sys::console::log_1(&format!("received event: {:?}", event).into());
     commands.trigger(event);
   }
 }

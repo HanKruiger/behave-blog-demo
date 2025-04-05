@@ -31,6 +31,7 @@ bevy = { version = "0.16.0-rc.3", default-features = false, features = [
   "bevy_ui",
   "bevy_winit",
   "webgl2",
+  "bevy_log",
 ] }
 
 wasm-bindgen = { version = "0.2.100", default-features = false }
@@ -41,5 +42,5 @@ web-sys = { version = "0.3", features = [
   "EventTarget",
   "console",
 ] }
-gloo = { version = "0.11" }
+gloo = { version = "0.11", default-features = false, features = ["events"] }
 crossbeam-channel = { version = "0.5", default-features = false }
