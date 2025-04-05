@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::HashMap};
 
 use gloo::events::EventListener;
 
@@ -21,20 +21,26 @@ impl Plugin for GluePlugin {
 /// attach click listeners to button elements, and sends them to the channel
 /// (it is not possible to directly send to Bevy from the closure)
 fn wire_up_buttons(sender: Res<GlueSender<WebEvent>>) {
+  let mut mapping = HashMap::new();
+  mapping.insert("spawn", WebEvent::SpawnAgent);
+  mapping.insert("walk-lr-naive", WebEvent::SetBehaviourWalkLeftRightNaive);
+
   let window = web_sys::window().expect("could not get window from web_sys");
   let document = window.document().expect("could not get document");
 
-  let dom_button = document
-    .query_selector("#spawn-button")
-    .expect("query selector failed")
-    .expect("element not found");
+  for (id, event) in mapping.iter() {
+    let dom_button = document
+      .query_selector(&format!("button#{}", id))
+      .expect("query selector failed")
+      .expect("element not found");
 
-  let sender_1 = sender.0.clone();
-
-  EventListener::new(&dom_button, "click", move |_event| {
-    sender_1.send(WebEvent::SpawnAgent).unwrap();
-  })
-  .forget();
+    let sender_1 = sender.0.clone();
+    let event_1 = event.clone();
+    EventListener::new(&dom_button, "click", move |_event| {
+      sender_1.send(event_1).unwrap();
+    })
+    .forget();
+  }
 }
 
 /// consumes WebEvents from the channel and forwards them to the Bevy trigger system
@@ -44,9 +50,10 @@ fn forward_web_events(receiver: ResMut<GlueReceiver<WebEvent>>, mut commands: Co
   }
 }
 
-#[derive(Debug, Event)]
+#[derive(Debug, Event, Clone, Copy)]
 pub enum WebEvent {
   SpawnAgent,
+  SetBehaviourWalkLeftRightNaive,
 }
 
 #[derive(Resource)]

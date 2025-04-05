@@ -1,7 +1,6 @@
 use bevy::color::palettes::tailwind as tw;
 use bevy::prelude::*;
 
-use crate::behaviour::LeftRightWalk;
 use crate::grid::GridCell;
 
 pub struct AgentPlugin;
@@ -22,12 +21,13 @@ fn spawn_agent(
     Agent,
     Mesh2d(r_meshes.add(Rectangle::new(0.9, 0.9))),
     MeshMaterial2d(r_materials.add(Color::from(tw::GREEN_600))),
-    LeftRightWalk::default(),
   ));
 }
 
 #[derive(Component)]
-#[require(Transform::from_xyz(0.0, 0.0, 0.1), GridCell)]
+// bevy 0.16 syntax
+// #[require(Transform::from_xyz(0.0, 0.0, 0.1), GridCell)]
+#[require(Transform(|| Transform::from_xyz(0.0, 0.0, 0.1)), GridCell)]
 pub struct Agent;
 
 #[derive(Event)]

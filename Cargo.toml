@@ -24,14 +24,11 @@ lto = "fat"
 codegen-units = 1
 
 [dependencies]
-bevy = { version = "0.16.0-rc.3", default-features = false, features = [
-  "default_no_std",
-  "web",
+bevy = { version = "0.15.3", default-features = false, features = [
 
   "bevy_ui",
   "bevy_winit",
   "webgl2",
-  "bevy_log",
 ] }
 
 wasm-bindgen = { version = "0.2.100", default-features = false }

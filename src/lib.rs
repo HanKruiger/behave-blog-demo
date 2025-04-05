@@ -1,5 +1,3 @@
-#![no_std]
-
 mod agent;
 mod behaviour;
 mod glue;
@@ -8,6 +6,7 @@ mod resizing;
 mod schedule;
 
 use agent::SpawnAgent;
+use behaviour::SetBehaviourWalkLeftRightNaive;
 use bevy::prelude::*;
 
 use wasm_bindgen::prelude::*;
@@ -46,6 +45,9 @@ fn on_web_event(trigger: Trigger<glue::WebEvent>, mut commands: Commands) {
   match trigger.event() {
     glue::WebEvent::SpawnAgent => {
       commands.trigger(SpawnAgent);
+    }
+    glue::WebEvent::SetBehaviourWalkLeftRightNaive => {
+      commands.trigger(SetBehaviourWalkLeftRightNaive);
     }
   }
 }

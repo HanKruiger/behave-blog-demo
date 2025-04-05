@@ -6,7 +6,19 @@ pub struct BehaviourPlugin;
 
 impl Plugin for BehaviourPlugin {
   fn build(&self, app: &mut App) {
-    app.add_systems(Update, process_left_right_walk.in_set(TickSet));
+    app
+      .add_observer(give_left_right_walk_behaviour)
+      .add_systems(Update, process_left_right_walk.in_set(TickSet));
+  }
+}
+
+fn give_left_right_walk_behaviour(
+  _trigger: Trigger<SetBehaviourWalkLeftRightNaive>,
+  q_agents: Query<Entity, With<Agent>>,
+  mut commands: Commands,
+) {
+  for agent in q_agents.iter() {
+    commands.entity(agent).insert(LeftRightWalk::default());
   }
 }
 
@@ -52,3 +64,6 @@ impl LeftRightWalk {
     }
   }
 }
+
+#[derive(Event)]
+pub struct SetBehaviourWalkLeftRightNaive;
