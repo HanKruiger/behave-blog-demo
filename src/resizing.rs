@@ -1,15 +1,12 @@
 use bevy::{prelude::*, window::WindowResized};
 
-use crate::grid::GridCell;
+use crate::grid::{CellSize, GridBounds};
 
 pub struct ResizingPlugin;
 
 impl Plugin for ResizingPlugin {
   fn build(&self, app: &mut App) {
-    app
-      .init_resource::<GridBounds>()
-      .init_resource::<CellSize>()
-      .add_systems(Update, resize_grid_on_resize);
+    app.add_systems(Update, resize_grid_on_resize);
   }
 }
 
@@ -38,49 +35,6 @@ fn resize_grid_on_resize(
 pub struct GridSizeChanged;
 #[derive(Event)]
 pub struct CellSizeChanged;
-
-/// Represents the number of rows / columns of cells should exist.
-#[derive(Resource, Default, PartialEq, Debug)]
-pub struct GridBounds {
-  width: usize,
-  height: usize,
-}
-
-#[derive(Resource, Default, PartialEq, Debug)]
-pub struct CellSize(pub f32);
-
-impl GridBounds {
-  pub fn from_size(width: usize, height: usize) -> Self {
-    Self { width, height }
-  }
-
-  pub fn left_inclusive(&self) -> isize {
-    -((self.width / 2) as isize)
-  }
-
-  pub fn right_exclusive(&self) -> isize {
-    self.left_inclusive() + self.width as isize
-  }
-
-  pub fn top_inclusive(&self) -> isize {
-    -((self.height / 2) as isize)
-  }
-
-  pub fn bottom_exclusive(&self) -> isize {
-    self.top_inclusive() + self.height as isize
-  }
-
-  pub fn oddness(&self) -> (bool, bool) {
-    (self.width % 2 != 0, self.height % 2 != 0)
-  }
-
-  pub fn contains(&self, grid_cell: &GridCell) -> bool {
-    grid_cell.x >= self.left_inclusive()
-      && grid_cell.x < self.right_exclusive()
-      && grid_cell.y >= self.top_inclusive()
-      && grid_cell.y < self.bottom_exclusive()
-  }
-}
 
 const CELL_SIZE_IDEAL: usize = 50;
 const MIN_HORIZONTAL_CELLS: usize = 10;

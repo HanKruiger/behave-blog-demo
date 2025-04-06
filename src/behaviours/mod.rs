@@ -4,7 +4,7 @@ mod walk_left_right_naive;
 use bevy::prelude::*;
 
 use bevy_behave::prelude::{BehavePlugin, BehaveTree};
-use walk_left_right_naive::LeftRightWalkNaive;
+use walk_left_right_naive::WalkInDirectionUntilOutOfBounds as WalkInDirectionUntilOutOfBoundsNaive;
 
 pub use walk_left_right::SetBehaviourWalkLeftRight;
 pub use walk_left_right_naive::SetBehaviourWalkLeftRightNaive;
@@ -43,11 +43,13 @@ fn on_clear_behaviours(
 /// Clears all naive behaviours
 fn on_clear_naive_behaviours(
   _trigger: Trigger<ClearNaiveBehaviours>,
-  q_walk_lr_naive: Query<Entity, With<LeftRightWalkNaive>>,
+  w_walk_naive: Query<Entity, With<WalkInDirectionUntilOutOfBoundsNaive>>,
   mut commands: Commands,
 ) {
-  for e in q_walk_lr_naive.iter() {
-    commands.entity(e).remove::<LeftRightWalkNaive>();
+  for e in w_walk_naive.iter() {
+    commands
+      .entity(e)
+      .remove::<WalkInDirectionUntilOutOfBoundsNaive>();
   }
 }
 

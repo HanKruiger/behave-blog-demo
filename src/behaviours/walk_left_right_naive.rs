@@ -1,7 +1,11 @@
 use bevy::prelude::*;
 use bevy_behave::prelude::BehaveTree;
 
-use crate::{agent::Agent, grid::GridCell, resizing::GridBounds, schedule::TickSet};
+use crate::{
+  agent::Agent,
+  grid::{GridBounds, GridCell},
+  schedule::TickSet,
+};
 
 pub struct WalkLeftRightNaivePlugin;
 
@@ -27,51 +31,46 @@ fn set_behaviour(
   }
 
   for agent in q_agents.iter() {
-    commands.entity(agent).insert(LeftRightWalkNaive::default());
+    commands
+      .entity(agent)
+      .insert(WalkInDirectionUntilOutOfBounds::new(-1, 0));
   }
 }
 
 fn process_left_right_walk(
-  mut q_lr_walkers: Query<(&mut GridCell, &mut LeftRightWalkNaive), With<Agent>>,
+  mut q_walkers: Query<(&mut GridCell, &mut WalkInDirectionUntilOutOfBounds), With<Agent>>,
   r_grid_bounds: Res<GridBounds>,
 ) {
-  for (mut cell, mut lr_walk) in q_lr_walkers.iter_mut() {
-    let target = lr_walk.step_from(&cell);
-    if r_grid_bounds.contains(&target) {
-      *cell = target;
-    } else {
-      // if the step would've been out of bounds, reverse and take a step in that direction
-      lr_walk.reverse();
-      *cell = lr_walk.step_from(&cell);
+  for (mut cell, mut walk) in q_walkers.iter_mut() {
+    let target = walk.step_from(&cell);
+    *cell = target;
+
+    let next_target = walk.step_from(&cell);
+    if !r_grid_bounds.contains(&next_target) {
+      // the next step would've put the agent out of bounds, so we reverse
+      walk.reverse();
     }
   }
 }
 
-#[derive(Default)]
-enum WalkDirectionHorizontal {
-  #[default]
-  Left,
-  Right,
+#[derive(Component, Clone)]
+pub struct WalkInDirectionUntilOutOfBounds {
+  x: isize,
+  y: isize,
 }
 
-#[derive(Component, Default)]
-pub struct LeftRightWalkNaive {
-  current_direction: WalkDirectionHorizontal,
-}
+impl WalkInDirectionUntilOutOfBounds {
+  pub fn new(x: isize, y: isize) -> Self {
+    Self { x, y }
+  }
 
-impl LeftRightWalkNaive {
   pub fn step_from(&self, from: &GridCell) -> GridCell {
-    match self.current_direction {
-      WalkDirectionHorizontal::Left => GridCell::new(from.x - 1, from.y),
-      WalkDirectionHorizontal::Right => GridCell::new(from.x + 1, from.y),
-    }
+    GridCell::new(from.x + self.x, from.y + self.y)
   }
 
   pub fn reverse(&mut self) {
-    self.current_direction = match self.current_direction {
-      WalkDirectionHorizontal::Left => WalkDirectionHorizontal::Right,
-      WalkDirectionHorizontal::Right => WalkDirectionHorizontal::Left,
-    }
+    self.x = -self.x;
+    self.y = -self.y;
   }
 }
 

@@ -1,5 +1,6 @@
 mod agent;
 mod behaviours;
+mod fruit;
 mod glue;
 mod grid;
 mod resizing;
@@ -30,6 +31,7 @@ pub fn main() {
     .add_plugins(grid::GridPlugin)
     .add_plugins(agent::AgentPlugin)
     .add_plugins(behaviours::BehavioursPlugin)
+    .add_plugins(fruit::FruitPlugin)
     // main systems & observers
     .add_systems(Startup, setup)
     .add_observer(on_web_event)
@@ -54,6 +56,9 @@ fn on_web_event(trigger: Trigger<glue::WebEvent>, mut commands: Commands) {
       commands.trigger(behaviours::ClearNaiveBehaviours);
       commands.trigger(behaviours::ClearBehaviours);
       commands.trigger(behaviours::SetBehaviourWalkLeftRight);
+    }
+    glue::WebEvent::SpawnFruitSpawner => {
+      commands.trigger(fruit::SpawnFruitSpawner);
     }
   }
 }

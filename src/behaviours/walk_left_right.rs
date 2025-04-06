@@ -1,7 +1,11 @@
 use bevy::prelude::*;
 use bevy_behave::prelude::*;
 
-use crate::{agent::Agent, grid::GridCell, resizing::GridBounds, schedule::TickSet};
+use crate::{
+  agent::Agent,
+  grid::{GridBounds, GridCell},
+  schedule::TickSet,
+};
 
 pub struct WalkLeftRightPlugin;
 

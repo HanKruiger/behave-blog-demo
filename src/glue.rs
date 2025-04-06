@@ -25,6 +25,7 @@ fn wire_up_buttons(sender: Res<GlueSender<WebEvent>>) {
   button_click_mapping.insert("spawn", WebEvent::SpawnAgent);
   button_click_mapping.insert("walk-lr-naive", WebEvent::SetBehaviourWalkLeftRightNaive);
   button_click_mapping.insert("walk-lr", WebEvent::SetBehaviourWalkLeftRight);
+  button_click_mapping.insert("spawn-fruit-spawner", WebEvent::SpawnFruitSpawner);
 
   let window = web_sys::window().expect("could not get window from web_sys");
   let document = window.document().expect("could not get document");
@@ -56,6 +57,7 @@ pub enum WebEvent {
   SpawnAgent,
   SetBehaviourWalkLeftRightNaive,
   SetBehaviourWalkLeftRight,
+  SpawnFruitSpawner,
 }
 
 #[derive(Resource)]

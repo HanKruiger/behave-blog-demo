@@ -1,13 +1,16 @@
 use bevy::color::palettes::tailwind as tw;
 use bevy::prelude::*;
+use rand::Rng;
 
-use crate::resizing::{CellSize, CellSizeChanged, GridBounds, GridSizeChanged};
+use crate::resizing::{CellSizeChanged, GridSizeChanged};
 
 pub struct GridPlugin;
 
 impl Plugin for GridPlugin {
   fn build(&self, app: &mut App) {
     app
+      .init_resource::<GridBounds>()
+      .init_resource::<CellSize>()
       .add_observer(spawn_grid)
       .add_observer(resize_and_translate_on_cell_size_changed)
       .add_systems(Update, translate_moved_cells);
@@ -102,3 +105,53 @@ impl From<&GridCell> for (isize, isize) {
 
 #[derive(Component)]
 pub struct Ground;
+
+#[derive(Resource, Default, PartialEq, Debug)]
+pub struct CellSize(pub f32);
+
+/// Represents the number of rows / columns of cells should exist.
+#[derive(Resource, Default, PartialEq, Debug)]
+pub struct GridBounds {
+  width: usize,
+  height: usize,
+}
+impl GridBounds {
+  pub fn from_size(width: usize, height: usize) -> Self {
+    Self { width, height }
+  }
+
+  pub fn left_inclusive(&self) -> isize {
+    -((self.width / 2) as isize)
+  }
+
+  pub fn right_exclusive(&self) -> isize {
+    self.left_inclusive() + self.width as isize
+  }
+
+  pub fn top_inclusive(&self) -> isize {
+    -((self.height / 2) as isize)
+  }
+
+  pub fn bottom_exclusive(&self) -> isize {
+    self.top_inclusive() + self.height as isize
+  }
+
+  pub fn oddness(&self) -> (bool, bool) {
+    (self.width % 2 != 0, self.height % 2 != 0)
+  }
+
+  pub fn contains(&self, grid_cell: &GridCell) -> bool {
+    grid_cell.x >= self.left_inclusive()
+      && grid_cell.x < self.right_exclusive()
+      && grid_cell.y >= self.top_inclusive()
+      && grid_cell.y < self.bottom_exclusive()
+  }
+
+  pub fn get_random_position(&self) -> GridCell {
+    let mut rng = rand::thread_rng();
+    GridCell::new(
+      rng.gen_range(self.left_inclusive()..self.right_exclusive()),
+      rng.gen_range(self.left_inclusive()..self.right_exclusive()),
+    )
+  }
+}
