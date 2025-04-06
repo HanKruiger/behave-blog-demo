@@ -4,17 +4,13 @@ use bevy::prelude::*;
 use bevy_rand::prelude::{GlobalEntropy, WyRand};
 use rand::Rng;
 
-pub struct GridPlugin;
-
-impl Plugin for GridPlugin {
-  fn build(&self, app: &mut App) {
-    app
-      .init_resource::<GridBounds>()
-      .init_resource::<CellSize>()
-      .add_observer(spawn_grid)
-      .add_observer(resize_and_translate_on_cell_size_changed)
-      .add_systems(Update, translate_moved_cells);
-  }
+pub fn grid_plugin(app: &mut App) {
+  app
+    .init_resource::<GridBounds>()
+    .init_resource::<CellSize>()
+    .add_observer(spawn_grid)
+    .add_observer(resize_and_translate_on_cell_size_changed)
+    .add_systems(Update, translate_moved_cells);
 }
 
 fn spawn_grid(
@@ -84,7 +80,7 @@ fn layout(coordinates: (isize, isize), cell_size: f32, oddness: (bool, bool)) ->
   )
 }
 
-#[derive(Component, Default)]
+#[derive(Component, Default, PartialEq, Copy, Clone)]
 #[require(Transform)]
 pub struct GridCell {
   pub x: isize,
@@ -95,11 +91,38 @@ impl GridCell {
   pub fn new(x: isize, y: isize) -> Self {
     Self { x, y }
   }
+
+  pub fn distance(&self, to: &GridCell) -> f32 {
+    Vec2::from(self).distance(Vec2::from(to))
+  }
+
+  pub fn neighbours(&self) -> Vec<Self> {
+    vec![
+      GridCell::new(self.x - 1, self.y),
+      GridCell::new(self.x + 1, self.y),
+      GridCell::new(self.x, self.y - 1),
+      GridCell::new(self.x, self.y + 1),
+    ]
+  }
+
+  pub fn step_to(&mut self, target: &GridCell) {
+    if (self.x - target.x).abs() > (self.y - target.y).abs() {
+      self.x += (target.x - self.x) / (target.x - self.x).abs();
+    } else {
+      self.y += (target.y - self.y) / (target.y - self.y).abs();
+    }
+  }
 }
 
 impl From<&GridCell> for (isize, isize) {
   fn from(value: &GridCell) -> Self {
     (value.x, value.y)
+  }
+}
+
+impl From<&GridCell> for Vec2 {
+  fn from(value: &GridCell) -> Self {
+    Vec2::new(value.x as f32, value.y as f32)
   }
 }
 

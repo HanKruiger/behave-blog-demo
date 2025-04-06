@@ -4,22 +4,18 @@ use bevy::prelude::*;
 use crate::agent::Agent;
 use crate::schedule::HungerTickSet;
 
-pub struct HungerPlugin;
-
-impl Plugin for HungerPlugin {
-  fn build(&self, app: &mut App) {
-    app
-      .init_resource::<HungerEnabled>()
-      .add_systems(
-        Update,
-        (process_hunger, update_hunger_indicators)
-          .chain()
-          .in_set(HungerTickSet),
-      )
-      .add_systems(Update, insert_hunger_on_agent_spawn)
-      .add_systems(Update, insert_indicator_on_hunger_spawn)
-      .add_observer(on_enable_hunger);
-  }
+pub fn hunger_plugin(app: &mut App) {
+  app
+    .init_resource::<HungerEnabled>()
+    .add_systems(
+      Update,
+      (process_hunger, update_hunger_indicators)
+        .chain()
+        .in_set(HungerTickSet),
+    )
+    .add_systems(Update, insert_hunger_on_agent_spawn)
+    .add_systems(Update, insert_indicator_on_hunger_spawn)
+    .add_observer(on_enable_hunger);
 }
 
 fn on_enable_hunger(
@@ -109,6 +105,10 @@ impl Hunger {
       remaining: capacity,
       capacity,
     }
+  }
+
+  pub fn eat(&mut self, nutritional_value: usize) {
+    self.remaining = (self.remaining + nutritional_value).clamp(0, self.capacity);
   }
 }
 

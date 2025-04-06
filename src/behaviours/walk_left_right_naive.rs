@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use bevy_behave::prelude::BehaveTree;
 
 use crate::{
   agent::Agent,
@@ -7,28 +6,21 @@ use crate::{
   schedule::TickSet,
 };
 
-pub struct WalkLeftRightNaivePlugin;
+use super::NaiveMovementEnabled;
 
-impl Plugin for WalkLeftRightNaivePlugin {
-  fn build(&self, app: &mut App) {
-    app
-      .add_observer(set_behaviour)
-      .add_systems(Update, process_left_right_walk.in_set(TickSet));
-  }
+pub fn walk_left_right_naive_plugin(app: &mut App) {
+  app
+    .add_observer(enable_behaviour)
+    .add_systems(Update, process_left_right_walk.in_set(TickSet));
 }
 
-fn set_behaviour(
+fn enable_behaviour(
   _trigger: Trigger<SetBehaviourWalkLeftRightNaive>,
   q_agents: Query<Entity, With<Agent>>,
-  q_behaviours: Query<(Entity, &Parent), With<BehaveTree>>,
+  mut r_naive_movement_enabled: ResMut<NaiveMovementEnabled>,
   mut commands: Commands,
 ) {
-  // first, clear any bevy_behave behaviour trees on agents
-  for (tree, parent) in q_behaviours.iter() {
-    if q_agents.contains(parent.get()) {
-      commands.entity(tree).despawn_recursive();
-    }
-  }
+  r_naive_movement_enabled.0 = true;
 
   for agent in q_agents.iter() {
     commands

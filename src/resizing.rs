@@ -2,12 +2,8 @@ use bevy::{prelude::*, window::WindowResized};
 
 use crate::grid::{CellSize, GridBounds};
 
-pub struct ResizingPlugin;
-
-impl Plugin for ResizingPlugin {
-  fn build(&self, app: &mut App) {
-    app.add_systems(Update, resize_grid_on_resize);
-  }
+pub fn resizing_plugin(app: &mut App) {
+  app.add_systems(Update, resize_grid_on_resize);
 }
 
 fn resize_grid_on_resize(

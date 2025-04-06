@@ -7,22 +7,16 @@ use crate::{
   schedule::TickSet,
 };
 
-pub struct WalkLeftRightPlugin;
+use super::{CurrentMovementBehaviour, MovementBehaviour};
 
-impl Plugin for WalkLeftRightPlugin {
-  fn build(&self, app: &mut App) {
-    app
-      .add_observer(give_left_right_walk_behaviour)
-      .add_systems(Update, process_left_right_walk.in_set(TickSet));
-  }
+pub fn walk_left_right_plugin(app: &mut App) {
+  app
+    .add_observer(enable_behaviour)
+    .add_systems(Update, process_left_right_walk.in_set(TickSet));
 }
 
-fn give_left_right_walk_behaviour(
-  _trigger: Trigger<SetBehaviourWalkLeftRight>,
-  q_agents: Query<Entity, With<Agent>>,
-  mut commands: Commands,
-) {
-  let tree = behave! {
+fn build_behaviour_tree() -> Tree<bevy_behave::Behave> {
+  behave! {
     Behave::Forever => {
       Behave::Sequence => {
         Behave::spawn((
@@ -35,13 +29,26 @@ fn give_left_right_walk_behaviour(
         )),
       }
     }
-  };
+  }
+}
+
+fn enable_behaviour(
+  _trigger: Trigger<SetBehaviourWalkLeftRight>,
+  q_agents: Query<Entity, With<Agent>>,
+  mut r_current_movement_behaviour: ResMut<CurrentMovementBehaviour>,
+  mut commands: Commands,
+) {
+  let tree = build_behaviour_tree();
+  let name = "Walk left right";
+
+  r_current_movement_behaviour.0 = Some((tree.clone(), name.into()));
 
   for agent in q_agents.iter() {
     commands
       .spawn((
-        Name::new("Walk left right"),
+        Name::new(name),
         BehaveTree::new(tree.clone()).with_logging(true),
+        MovementBehaviour,
       ))
       .set_parent(agent);
   }

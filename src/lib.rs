@@ -28,14 +28,14 @@ pub fn main() {
     }))
     .add_plugins(EntropyPlugin::<WyRand>::default())
     // this app's plugins
-    .add_plugins(glue::GluePlugin)
-    .add_plugins(schedule::SchedulePlugin)
-    .add_plugins(resizing::ResizingPlugin)
-    .add_plugins(grid::GridPlugin)
-    .add_plugins(agent::AgentPlugin)
-    .add_plugins(hunger::HungerPlugin)
-    .add_plugins(behaviours::BehavioursPlugin)
-    .add_plugins(fruit::FruitPlugin)
+    .add_plugins(glue::glue_plugin)
+    .add_plugins(schedule::schedule_plugin)
+    .add_plugins(resizing::resizing_plugin)
+    .add_plugins(grid::grid_plugin)
+    .add_plugins(agent::agent_plugin)
+    .add_plugins(hunger::hunger_plugin)
+    .add_plugins(behaviours::behaviours_plugin)
+    .add_plugins(fruit::fruit_plugin)
     // main systems & observers
     .add_systems(Startup, setup)
     .add_observer(on_web_event)
@@ -52,20 +52,26 @@ fn on_web_event(trigger: Trigger<glue::WebEvent>, mut commands: Commands) {
       commands.trigger(SpawnAgent);
     }
     glue::WebEvent::SetBehaviourWalkLeftRightNaive => {
-      commands.trigger(behaviours::ClearNaiveBehaviours);
-      commands.trigger(behaviours::ClearBehaviours);
+      commands.trigger(behaviours::DisableNaiveMovementBehaviours);
+      commands.trigger(behaviours::DisableMovementBehaviours);
       commands.trigger(behaviours::SetBehaviourWalkLeftRightNaive);
     }
     glue::WebEvent::SetBehaviourWalkLeftRight => {
-      commands.trigger(behaviours::ClearNaiveBehaviours);
-      commands.trigger(behaviours::ClearBehaviours);
+      commands.trigger(behaviours::DisableNaiveMovementBehaviours);
+      commands.trigger(behaviours::DisableMovementBehaviours);
       commands.trigger(behaviours::SetBehaviourWalkLeftRight);
+    }
+    glue::WebEvent::SetBehaviourMoveToClosestFruit => {
+      commands.trigger(behaviours::DisableNaiveMovementBehaviours);
+      commands.trigger(behaviours::DisableMovementBehaviours);
+      commands.trigger(behaviours::SetBehaviourMoveToClosestFruit);
     }
     glue::WebEvent::SpawnFruitSpawner => {
       commands.trigger(fruit::SpawnFruitSpawner);
     }
     glue::WebEvent::EnableHunger => {
       commands.trigger(hunger::EnableHunger);
+      commands.trigger(behaviours::EnableEating);
     }
   }
 }

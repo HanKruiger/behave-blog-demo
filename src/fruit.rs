@@ -8,14 +8,10 @@ use crate::{
   schedule::TickSet,
 };
 
-pub struct FruitPlugin;
-
-impl Plugin for FruitPlugin {
-  fn build(&self, app: &mut App) {
-    app
-      .add_systems(Update, process_spawn_fruit_task.in_set(TickSet))
-      .add_observer(spawn_fruit_spawner);
-  }
+pub fn fruit_plugin(app: &mut App) {
+  app
+    .add_systems(Update, process_spawn_fruit_task.in_set(TickSet))
+    .add_observer(spawn_fruit_spawner);
 }
 
 fn spawn_fruit_spawner(
@@ -71,7 +67,7 @@ fn process_spawn_fruit_task(
     if n_fruit.unwrap() < spawner.target_fruit_number {
       let cell = r_grid_bounds.get_random_position(&mut rng);
       commands.spawn((
-        Fruit,
+        Fruit::new(2),
         cell,
         Mesh2d(r_meshes.add(Rectangle::new(0.3, 0.3))),
         MeshMaterial2d(r_materials.add(Color::from(tw::RED_600))),
@@ -90,7 +86,15 @@ struct SpawnFruitUntilEnough;
 
 #[derive(Component)]
 #[require(Transform(|| Transform::from_xyz(0.0, 0.0, 0.09)), GridCell)]
-pub struct Fruit;
+pub struct Fruit {
+  pub nutritional_value: usize,
+}
+
+impl Fruit {
+  pub fn new(nutritional_value: usize) -> Self {
+    Self { nutritional_value }
+  }
+}
 
 #[derive(Event)]
 pub struct SpawnFruitSpawner;

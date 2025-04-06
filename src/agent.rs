@@ -3,12 +3,8 @@ use bevy::prelude::*;
 
 use crate::grid::GridCell;
 
-pub struct AgentPlugin;
-
-impl Plugin for AgentPlugin {
-  fn build(&self, app: &mut App) {
-    app.add_observer(spawn_agent);
-  }
+pub fn agent_plugin(app: &mut App) {
+  app.add_observer(spawn_agent);
 }
 
 fn spawn_agent(

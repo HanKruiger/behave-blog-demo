@@ -2,20 +2,16 @@ use bevy::{prelude::*, utils::HashMap};
 
 use gloo::events::EventListener;
 
-pub struct GluePlugin;
+pub fn glue_plugin(app: &mut App) {
+  // create a channel for communication between web event listeners and Bevy
+  let (sender, receiver) = crossbeam_channel::unbounded::<WebEvent>();
 
-impl Plugin for GluePlugin {
-  fn build(&self, app: &mut App) {
-    // create a channel for communication between web event listeners and Bevy
-    let (sender, receiver) = crossbeam_channel::unbounded::<WebEvent>();
+  // insert channel sender and receiver as separate resources
+  app.insert_resource(GlueSender(sender));
+  app.insert_resource(GlueReceiver(receiver));
 
-    // insert channel sender and receiver as separate resources
-    app.insert_resource(GlueSender(sender));
-    app.insert_resource(GlueReceiver(receiver));
-
-    app.add_systems(Startup, wire_up_buttons);
-    app.add_systems(Update, forward_web_events);
-  }
+  app.add_systems(Startup, wire_up_buttons);
+  app.add_systems(Update, forward_web_events);
 }
 
 /// attach click listeners to button elements, and sends them to the channel
@@ -28,6 +24,7 @@ fn wire_up_buttons(sender: Res<GlueSender<WebEvent>>) {
   button_click_mapping.insert("walk-lr", WebEvent::SetBehaviourWalkLeftRight);
   button_click_mapping.insert("spawn-fruit-spawner", WebEvent::SpawnFruitSpawner);
   button_click_mapping.insert("enable-hunger", WebEvent::EnableHunger);
+  button_click_mapping.insert("move-to-fruit", WebEvent::SetBehaviourMoveToClosestFruit);
 
   let window = web_sys::window().expect("could not get window from web_sys");
   let document = window.document().expect("could not get document");
@@ -61,6 +58,7 @@ pub enum WebEvent {
   SetBehaviourWalkLeftRight,
   SpawnFruitSpawner,
   EnableHunger,
+  SetBehaviourMoveToClosestFruit,
 }
 
 #[derive(Resource)]
