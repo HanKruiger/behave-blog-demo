@@ -17,10 +17,24 @@ fn spawn_grid(
   _trigger: Trigger<GridSizeChanged>,
   r_grid_bounds: Res<GridBounds>,
   q_background_cells: Query<Entity, With<Ground>>,
+  mut q_existing_cells: Query<&mut GridCell, Without<Ground>>,
   mut meshes: ResMut<Assets<Mesh>>,
   mut materials: ResMut<Assets<ColorMaterial>>,
   mut commands: Commands,
 ) {
+  // clamp existing non-ground cells to new bounds
+  for mut cell in q_existing_cells.iter_mut() {
+    cell.x = cell.x.clamp(
+      r_grid_bounds.left_inclusive(),
+      r_grid_bounds.right_exclusive() - 1,
+    );
+
+    cell.y = cell.y.clamp(
+      r_grid_bounds.top_inclusive(),
+      r_grid_bounds.bottom_exclusive() - 1,
+    );
+  }
+
   // despawn old grid
   for e in q_background_cells.iter() {
     commands.entity(e).despawn();
