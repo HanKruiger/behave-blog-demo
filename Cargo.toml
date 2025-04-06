@@ -42,4 +42,7 @@ web-sys = { version = "0.3", features = [
 gloo = { version = "0.11", default-features = false, features = ["events"] }
 crossbeam-channel = { version = "0.5", default-features = false }
 bevy_behave = "0.2.2"
-rand = "0.8.5"
+
+rand = "0.8"
+rand_core = "0.6"
+bevy_rand = { version = "0.9", features = ["rand_chacha", "wyrand"] }

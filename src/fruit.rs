@@ -1,6 +1,7 @@
 use bevy::color::palettes::tailwind as tw;
 use bevy::prelude::*;
 use bevy_behave::prelude::*;
+use bevy_rand::prelude::{GlobalEntropy, WyRand};
 
 use crate::{
   grid::{GridBounds, GridCell},
@@ -54,6 +55,7 @@ fn process_spawn_fruit_task(
   mut r_meshes: ResMut<Assets<Mesh>>,
   mut r_materials: ResMut<Assets<ColorMaterial>>,
   mut commands: Commands,
+  mut rng: GlobalEntropy<WyRand>,
 ) {
   let mut n_fruit = None;
   for ctx in b_spawn_until_enough.iter() {
@@ -67,7 +69,7 @@ fn process_spawn_fruit_task(
     }
 
     if n_fruit.unwrap() < spawner.target_fruit_number {
-      let cell = r_grid_bounds.get_random_position();
+      let cell = r_grid_bounds.get_random_position(&mut rng);
       commands.spawn((
         Fruit,
         cell,

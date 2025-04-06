@@ -1,8 +1,8 @@
+use crate::resizing::{CellSizeChanged, GridSizeChanged};
 use bevy::color::palettes::tailwind as tw;
 use bevy::prelude::*;
+use bevy_rand::prelude::{GlobalEntropy, WyRand};
 use rand::Rng;
-
-use crate::resizing::{CellSizeChanged, GridSizeChanged};
 
 pub struct GridPlugin;
 
@@ -147,11 +147,10 @@ impl GridBounds {
       && grid_cell.y < self.bottom_exclusive()
   }
 
-  pub fn get_random_position(&self) -> GridCell {
-    let mut rng = rand::thread_rng();
+  pub fn get_random_position(&self, rng: &mut GlobalEntropy<WyRand>) -> GridCell {
     GridCell::new(
       rng.gen_range(self.left_inclusive()..self.right_exclusive()),
-      rng.gen_range(self.left_inclusive()..self.right_exclusive()),
+      rng.gen_range(self.top_inclusive()..self.bottom_exclusive()),
     )
   }
 }

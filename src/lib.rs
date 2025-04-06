@@ -3,12 +3,14 @@ mod behaviours;
 mod fruit;
 mod glue;
 mod grid;
+mod hunger;
 mod resizing;
 mod schedule;
 
 use agent::SpawnAgent;
 use bevy::prelude::*;
 
+use bevy_rand::{plugin::EntropyPlugin, prelude::WyRand};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen(start)]
@@ -24,12 +26,14 @@ pub fn main() {
       }),
       ..default()
     }))
+    .add_plugins(EntropyPlugin::<WyRand>::default())
     // this app's plugins
     .add_plugins(glue::GluePlugin)
     .add_plugins(schedule::SchedulePlugin)
     .add_plugins(resizing::ResizingPlugin)
     .add_plugins(grid::GridPlugin)
     .add_plugins(agent::AgentPlugin)
+    .add_plugins(hunger::HungerPlugin)
     .add_plugins(behaviours::BehavioursPlugin)
     .add_plugins(fruit::FruitPlugin)
     // main systems & observers
@@ -59,6 +63,9 @@ fn on_web_event(trigger: Trigger<glue::WebEvent>, mut commands: Commands) {
     }
     glue::WebEvent::SpawnFruitSpawner => {
       commands.trigger(fruit::SpawnFruitSpawner);
+    }
+    glue::WebEvent::EnableHunger => {
+      commands.trigger(hunger::EnableHunger);
     }
   }
 }
