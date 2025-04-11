@@ -7,9 +7,8 @@ use crate::{
 
 use super::{CurrentMovementBehaviour, MovementBehaviour};
 
-pub fn walk_left_right_plugin(app: &mut App) {
-  app
-    .add_observer(enable_behaviour);
+pub fn walk_clockwise_plugin(app: &mut App) {
+  app.add_observer(enable_behaviour);
 }
 
 fn build_behaviour_tree() -> Tree<bevy_behave::Behave> {
@@ -18,11 +17,19 @@ fn build_behaviour_tree() -> Tree<bevy_behave::Behave> {
       Behave::Sequence => {
         Behave::spawn((
           Name::new("Walk left"),
-          WalkInDirectionUntilOutOfBounds::new(-1, 0),
+          WalkInDirectionUntilOutOfBounds((-1, 0)),
+        )),
+        Behave::spawn((
+          Name::new("Walk up"),
+          WalkInDirectionUntilOutOfBounds((0, 1)),
         )),
         Behave::spawn((
           Name::new("Walk right"),
-          WalkInDirectionUntilOutOfBounds::new(1, 0),
+          WalkInDirectionUntilOutOfBounds((1, 0)),
+        )),
+        Behave::spawn((
+          Name::new("Walk down"),
+          WalkInDirectionUntilOutOfBounds((0, -1)),
         )),
       }
     }
@@ -30,13 +37,13 @@ fn build_behaviour_tree() -> Tree<bevy_behave::Behave> {
 }
 
 fn enable_behaviour(
-  _trigger: Trigger<SetBehaviourWalkLeftRight>,
+  _trigger: Trigger<SetBehaviourWalkClockwise>,
   q_agents: Query<Entity, With<Agent>>,
   mut r_current_movement_behaviour: ResMut<CurrentMovementBehaviour>,
   mut commands: Commands,
 ) {
   let tree = build_behaviour_tree();
-  let name = "Walk left right";
+  let name = "Walk clockwise";
 
   r_current_movement_behaviour.0 = Some((tree.clone(), name.into()));
 
@@ -51,6 +58,5 @@ fn enable_behaviour(
   }
 }
 
-
 #[derive(Event)]
-pub struct SetBehaviourWalkLeftRight;
+pub struct SetBehaviourWalkClockwise;

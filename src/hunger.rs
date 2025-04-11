@@ -71,8 +71,8 @@ fn insert_indicator_on_hunger_spawn(
       HungerIndicator,
       MeshMaterial2d(r_materials.add(Color::from(tw::RED_500))),
       // mesh is translated so that it scales from the side rather than from the center
-      Mesh2d(r_meshes.add(Mesh::from(Rectangle::new(0.8, 0.15)).translated_by(Vec3::X * 0.4))),
-      Transform::from_xyz(-0.4, 0.3, 0.1),
+      Mesh2d(r_meshes.add(Mesh::from(Rectangle::new(0.15, 0.8)).translated_by(Vec3::Y * 0.4))),
+      Transform::from_xyz(-0.3, -0.4, 0.1),
     ));
   }
 }
@@ -86,7 +86,7 @@ fn update_hunger_indicators(
       let Ok(mut indicator_transform) = q_indicators.get_mut(child) else {
         continue;
       };
-      indicator_transform.scale.x = hunger.remaining as f32 / hunger.capacity as f32;
+      indicator_transform.scale.y = hunger.remaining as f32 / hunger.capacity as f32;
     }
   }
 }
@@ -109,6 +109,10 @@ impl Hunger {
 
   pub fn eat(&mut self, nutritional_value: usize) {
     self.remaining = (self.remaining + nutritional_value).clamp(0, self.capacity);
+  }
+
+  pub fn fraction_left(&self) -> f32 {
+    (self.remaining as f32) / (self.capacity as f32)
   }
 }
 

@@ -1,17 +1,21 @@
-mod eating;
+mod hunger_based;
 mod move_to_closest_fruit;
+mod pickups;
+mod target_finding;
+mod walk_clockwise;
 mod walk_left_right;
 mod walk_left_right_naive;
+mod walking;
 
 use bevy::prelude::*;
 use bevy_behave::prelude::*;
 
-use walk_left_right_naive::WalkInDirectionUntilOutOfBounds as WalkInDirectionUntilOutOfBoundsNaive;
-
-pub use eating::EnableEating;
+pub use hunger_based::SetBehaviourHungerBased;
 pub use move_to_closest_fruit::SetBehaviourMoveToClosestFruit;
+pub use walk_clockwise::SetBehaviourWalkClockwise;
 pub use walk_left_right::SetBehaviourWalkLeftRight;
 pub use walk_left_right_naive::SetBehaviourWalkLeftRightNaive;
+use walking::WalkInDirectionUntilOutOfBounds;
 
 use crate::agent::Agent;
 
@@ -22,9 +26,13 @@ pub fn behaviours_plugin(app: &mut App) {
     .add_plugins(BehavePlugin::default())
     .add_plugins((
       walk_left_right_naive::walk_left_right_naive_plugin,
+      walking::walking_plugin,
       walk_left_right::walk_left_right_plugin,
+      walk_clockwise::walk_clockwise_plugin,
       move_to_closest_fruit::move_to_closest_fruit_plugin,
-      eating::eating_plugin,
+      hunger_based::hunger_based_plugin,
+      target_finding::target_finding_plugin,
+      pickups::pickups_plugin,
     ))
     .add_systems(Update, on_agent_spawn_insert_movement_behaviour)
     .add_observer(on_clear_naive_movement_behaviours)
@@ -47,10 +55,10 @@ fn on_clear_movement_behaviours(
   }
 }
 
-/// Clears all naive movement behaviours for existing and new
+/// Clears all naive movement behaviours for existing and new agents
 fn on_clear_naive_movement_behaviours(
   _trigger: Trigger<DisableNaiveMovementBehaviours>,
-  w_walk_naive: Query<Entity, With<WalkInDirectionUntilOutOfBoundsNaive>>,
+  w_walk_naive: Query<Entity, (With<WalkInDirectionUntilOutOfBounds>, With<Agent>)>,
   mut r_naive_movement_enabled: ResMut<NaiveMovementEnabled>,
   mut commands: Commands,
 ) {
@@ -58,7 +66,7 @@ fn on_clear_naive_movement_behaviours(
   for e in w_walk_naive.iter() {
     commands
       .entity(e)
-      .remove::<WalkInDirectionUntilOutOfBoundsNaive>();
+      .remove::<WalkInDirectionUntilOutOfBounds>();
   }
 }
 
@@ -72,7 +80,7 @@ fn on_agent_spawn_insert_movement_behaviour(
     for agent in q_new_agents.iter() {
       commands
         .entity(agent)
-        .insert(WalkInDirectionUntilOutOfBoundsNaive::new(-1, 0));
+        .insert(WalkInDirectionUntilOutOfBounds((-1, 0)));
     }
   } else if let Some((tree, name)) = &r_current_movement_behaviour.0 {
     for agent in q_new_agents.iter() {

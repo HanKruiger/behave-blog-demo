@@ -6,7 +6,7 @@ use crate::{
   schedule::TickSet,
 };
 
-use super::NaiveMovementEnabled;
+use super::{walking::WalkInDirectionUntilOutOfBounds, NaiveMovementEnabled};
 
 pub fn walk_left_right_naive_plugin(app: &mut App) {
   app
@@ -42,27 +42,6 @@ fn process_left_right_walk(
       // the next step would've put the agent out of bounds, so we reverse
       walk.reverse();
     }
-  }
-}
-
-#[derive(Component, Clone)]
-pub struct WalkInDirectionUntilOutOfBounds {
-  x: isize,
-  y: isize,
-}
-
-impl WalkInDirectionUntilOutOfBounds {
-  pub fn new(x: isize, y: isize) -> Self {
-    Self { x, y }
-  }
-
-  pub fn step_from(&self, from: &GridCell) -> GridCell {
-    GridCell::new(from.x + self.x, from.y + self.y)
-  }
-
-  pub fn reverse(&mut self) {
-    self.x = -self.x;
-    self.y = -self.y;
   }
 }
 

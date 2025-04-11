@@ -1,9 +1,11 @@
 mod agent;
 mod behaviours;
+mod coins;
 mod fruit;
 mod glue;
 mod grid;
 mod hunger;
+mod points;
 mod resizing;
 mod schedule;
 
@@ -36,6 +38,8 @@ pub fn main() {
     .add_plugins(hunger::hunger_plugin)
     .add_plugins(behaviours::behaviours_plugin)
     .add_plugins(fruit::fruit_plugin)
+    .add_plugins(coins::coins_plugin)
+    .add_plugins(points::points_plugin)
     // main systems & observers
     .add_systems(Startup, setup)
     .add_observer(on_web_event)
@@ -61,17 +65,29 @@ fn on_web_event(trigger: Trigger<glue::WebEvent>, mut commands: Commands) {
       commands.trigger(behaviours::DisableMovementBehaviours);
       commands.trigger(behaviours::SetBehaviourWalkLeftRight);
     }
+    glue::WebEvent::SetBehaviourWalkClockwise => {
+      commands.trigger(behaviours::DisableNaiveMovementBehaviours);
+      commands.trigger(behaviours::DisableMovementBehaviours);
+      commands.trigger(behaviours::SetBehaviourWalkClockwise);
+    }
     glue::WebEvent::SetBehaviourMoveToClosestFruit => {
       commands.trigger(behaviours::DisableNaiveMovementBehaviours);
       commands.trigger(behaviours::DisableMovementBehaviours);
       commands.trigger(behaviours::SetBehaviourMoveToClosestFruit);
     }
+    glue::WebEvent::SetBehaviourHungerBased => {
+      commands.trigger(behaviours::DisableNaiveMovementBehaviours);
+      commands.trigger(behaviours::DisableMovementBehaviours);
+      commands.trigger(behaviours::SetBehaviourHungerBased);
+    }
     glue::WebEvent::SpawnFruitSpawner => {
       commands.trigger(fruit::SpawnFruitSpawner);
     }
+    glue::WebEvent::SpawnCoinSpawner => {
+      commands.trigger(coins::SpawnCoinSpawner);
+    }
     glue::WebEvent::EnableHunger => {
       commands.trigger(hunger::EnableHunger);
-      commands.trigger(behaviours::EnableEating);
     }
   }
 }

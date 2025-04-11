@@ -22,9 +22,25 @@ fn wire_up_buttons(sender: Res<GlueSender<WebEvent>>) {
   button_click_mapping.insert("spawn-agent-toolbar", WebEvent::SpawnAgent);
   button_click_mapping.insert("walk-lr-naive", WebEvent::SetBehaviourWalkLeftRightNaive);
   button_click_mapping.insert("walk-lr", WebEvent::SetBehaviourWalkLeftRight);
+  button_click_mapping.insert("walk-lr-toolbar", WebEvent::SetBehaviourWalkLeftRight);
+  button_click_mapping.insert("walk-clockwise", WebEvent::SetBehaviourWalkClockwise);
+  button_click_mapping.insert(
+    "walk-clockwise-toolbar",
+    WebEvent::SetBehaviourWalkClockwise,
+  );
+  button_click_mapping.insert("move-hunger-based", WebEvent::SetBehaviourHungerBased);
+  button_click_mapping.insert(
+    "move-hunger-based-toolbar",
+    WebEvent::SetBehaviourHungerBased,
+  );
   button_click_mapping.insert("spawn-fruit-spawner", WebEvent::SpawnFruitSpawner);
+  button_click_mapping.insert("spawn-coin-spawner", WebEvent::SpawnCoinSpawner);
   button_click_mapping.insert("enable-hunger", WebEvent::EnableHunger);
   button_click_mapping.insert("move-to-fruit", WebEvent::SetBehaviourMoveToClosestFruit);
+  button_click_mapping.insert(
+    "move-to-fruit-toolbar",
+    WebEvent::SetBehaviourMoveToClosestFruit,
+  );
 
   let window = web_sys::window().expect("could not get window from web_sys");
   let document = window.document().expect("could not get document");
@@ -56,9 +72,12 @@ pub enum WebEvent {
   SpawnAgent,
   SetBehaviourWalkLeftRightNaive,
   SetBehaviourWalkLeftRight,
-  SpawnFruitSpawner,
-  EnableHunger,
+  SetBehaviourWalkClockwise,
   SetBehaviourMoveToClosestFruit,
+  SetBehaviourHungerBased,
+  SpawnFruitSpawner,
+  SpawnCoinSpawner,
+  EnableHunger,
 }
 
 #[derive(Resource)]

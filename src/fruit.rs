@@ -25,7 +25,7 @@ fn spawn_fruit_spawner(
   }
 
   let mut fruit_spawner = commands.spawn((FruitSpawner {
-    target_fruit_number: 10, // maybe do based on grid size?
+    target_fruit_number: 20, // maybe do based on grid size?
   },));
 
   let tree = behave!(
