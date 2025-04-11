@@ -6,7 +6,7 @@ use crate::{
   schedule::TickSet,
 };
 
-use super::{walking::WalkInDirectionUntilOutOfBounds, NaiveMovementEnabled};
+use super::{NaiveMovementEnabled, walking::WalkInDirectionUntilOutOfBounds};
 
 pub fn walk_left_right_naive_plugin(app: &mut App) {
   app
@@ -31,15 +31,21 @@ fn enable_behaviour(
 
 fn process_left_right_walk(
   mut q_walkers: Query<(&mut GridCell, &mut WalkInDirectionUntilOutOfBounds), With<Agent>>,
-  r_grid_bounds: Res<GridBounds>,
+  r_bounds: Res<GridBounds>,
 ) {
-  for (mut cell, mut walk) in q_walkers.iter_mut() {
-    let target = walk.step_from(&cell);
-    *cell = target;
+  // loop over all grid cells & walk components that
+  // are attached to agents
+  for (mut grid_cell, mut walk) in q_walkers.iter_mut() {
+    // determine the next step, and update the agent's
+    // grid cell (make it move there)
+    *grid_cell = walk.step_from(&grid_cell);
 
-    let next_target = walk.step_from(&cell);
-    if !r_grid_bounds.contains(&next_target) {
-      // the next step would've put the agent out of bounds, so we reverse
+    // let's see if the next step will put us out of bounds
+    let next_target = walk.step_from(&grid_cell);
+    if !r_bounds.contains(&next_target) {
+      // the next step would've put the agent out of bounds,
+      // so we reverse (basically just flip -1 to +1 and
+      // vice versa)
       walk.reverse();
     }
   }

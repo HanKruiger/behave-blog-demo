@@ -39,7 +39,7 @@ fn spawn_coins_spawner(
 
   coins_spawner.with_child((
     Name::new("Spawn coins"),
-    BehaveTree::new(tree.clone()).with_logging(true),
+    BehaveTree::new(tree.clone()).with_logging(false),
   ));
 }
 

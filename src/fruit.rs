@@ -39,7 +39,7 @@ fn spawn_fruit_spawner(
 
   fruit_spawner.with_child((
     Name::new("Spawn fruits"),
-    BehaveTree::new(tree.clone()).with_logging(true),
+    BehaveTree::new(tree.clone()).with_logging(false),
   ));
 }
 

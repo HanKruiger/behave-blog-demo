@@ -60,7 +60,7 @@ fn enable_behaviour(
     commands
       .spawn((
         Name::new(name),
-        BehaveTree::new(tree.clone()).with_logging(true),
+        BehaveTree::new(tree.clone()).with_logging(false),
         MovementBehaviour,
       ))
       .set_parent(agent);

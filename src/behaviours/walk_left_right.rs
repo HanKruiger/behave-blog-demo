@@ -1,15 +1,12 @@
 use bevy::prelude::*;
 use bevy_behave::prelude::*;
 
-use crate::{
-  agent::Agent, behaviours::walking::WalkInDirectionUntilOutOfBounds
-};
+use crate::{agent::Agent, behaviours::walking::WalkInDirectionUntilOutOfBounds};
 
 use super::{CurrentMovementBehaviour, MovementBehaviour};
 
 pub fn walk_left_right_plugin(app: &mut App) {
-  app
-    .add_observer(enable_behaviour);
+  app.add_observer(enable_behaviour);
 }
 
 fn build_behaviour_tree() -> Tree<bevy_behave::Behave> {
@@ -44,13 +41,12 @@ fn enable_behaviour(
     commands
       .spawn((
         Name::new(name),
-        BehaveTree::new(tree.clone()).with_logging(true),
+        BehaveTree::new(tree.clone()).with_logging(false),
         MovementBehaviour,
       ))
       .set_parent(agent);
   }
 }
-
 
 #[derive(Event)]
 pub struct SetBehaviourWalkLeftRight;

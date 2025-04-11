@@ -1,6 +1,7 @@
 use crate::{
   agent::Agent,
-  grid::{GridBounds, GridCell}, schedule::TickSet,
+  grid::{GridBounds, GridCell},
+  schedule::TickSet,
 };
 use bevy::prelude::*;
 use bevy_behave::prelude::*;
@@ -28,13 +29,13 @@ impl WalkInDirectionUntilOutOfBounds {
 }
 
 fn process_walk_in_direction(
-  b_walk_in_direction: Query<(&WalkInDirectionUntilOutOfBounds, &BehaveCtx)>,
-  mut q_agents: Query<&mut GridCell, With<Agent>>,
-  r_grid_bounds: Res<GridBounds>,
+  q_walks: Query<(&WalkInDirectionUntilOutOfBounds, &BehaveCtx)>,
+  mut q_agent_cells: Query<&mut GridCell, With<Agent>>,
+  r_bounds: Res<GridBounds>,
   mut commands: Commands,
 ) {
-  for (walk, ctx) in b_walk_in_direction.iter() {
-    let Ok(mut agent_cell) = q_agents.get_mut(ctx.target_entity()) else {
+  for (walk, ctx) in q_walks.iter() {
+    let Ok(mut agent_cell) = q_agent_cells.get_mut(ctx.target_entity()) else {
       warn!("skipping behaviour that points to entity with no GridCell");
       continue;
     };
@@ -43,8 +44,8 @@ fn process_walk_in_direction(
     *agent_cell = target;
 
     let next_target = walk.step_from(&agent_cell);
-    if !r_grid_bounds.contains(&next_target) {
-      // the next step would've put the agent out of bounds, so we complete the behaviour step
+    if !r_bounds.contains(&next_target) {
+      // the next step would've put the agent out of bounds, so we successfully completed the behaviour step
       commands.trigger(ctx.success());
     }
   }

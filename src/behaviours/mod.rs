@@ -87,7 +87,7 @@ fn on_agent_spawn_insert_movement_behaviour(
       commands
         .spawn((
           Name::new(name.clone()),
-          BehaveTree::new(tree.clone()).with_logging(true),
+          BehaveTree::new(tree.clone()).with_logging(false),
           MovementBehaviour,
         ))
         .set_parent(agent);

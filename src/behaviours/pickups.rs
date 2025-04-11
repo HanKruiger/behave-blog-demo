@@ -62,7 +62,7 @@ fn on_agent_spawn_insert_pick_up_behaviour(
     commands
       .spawn((
         Name::new(name),
-        BehaveTree::new(tree.clone()).with_logging(true),
+        BehaveTree::new(tree.clone()).with_logging(false),
         PickUpBehaviour,
       ))
       .set_parent(agent);
